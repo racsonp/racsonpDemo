@@ -23,9 +23,9 @@ namespace racsonpDemo
 
           //  GlobalConfiguration.Configure(WebApiConfig.Register);
 
-            var dataBaseContext = new DataBaseContext();
-            Database.SetInitializer(new DataBaseInitializer());
-            dataBaseContext.Database.Initialize(true);
+            //var dataBaseContext = new DataBaseContext();
+            //Database.SetInitializer(new DataBaseInitializer());
+            //dataBaseContext.Database.Initialize(true);
 
 
          
