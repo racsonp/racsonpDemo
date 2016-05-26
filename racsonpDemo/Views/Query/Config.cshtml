@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "Config";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Server Configuration</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+               Demo Config Elements
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                 
+                    <div class="col-lg-6">
+                        <h1>Connection </h1>
+                        <form role="form">
+                            <fieldset disabled>
+                                <div class="form-group">
+                                    <label for="disabledSelect">Data Source Server</label>
+                                    <input class="form-control" id="disabledInput" type="text" placeholder="192.168.1.1" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="disabledSelect">Initial Catalog</label>
+                                    <select id="disabledSelect" class="form-control">
+                                        <option>Demo_Data</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="disabledSelect">User</label>
+                                    <input class="form-control" id="disabledInput1" type="text" placeholder="UserQuery" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="disabledSelect">Password</label>
+                                    <input class="form-control" id="disabledInput3" type="text" placeholder="**********************" disabled>
+                                  
+                                </div> 
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox">Allow multiple users 
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">SAVE</button>
+                            </fieldset>
+                        </form>
+       
+                    </div>
+                    <!-- /.col-lg-6 (nested) -->
+
+                    <div class="col-lg-6">
+                        <form role="form">
+                            <h1>INFORMATION_SCHEMA </h1>
+                            <div class="form-group">
+                                @*<label>INFORMATION_SCHEMA</label>*@
+                                
+                                <textarea class="form-control" rows="30">
+                                    Table Agent
+                                    Column Name	Data type
+                                    --------- -------------------------------
+                                    Biography		nvarchar
+                                    FirstName		nvarchar
+                                    Id				int
+                                    LastName		nvarchar
+
+
+
+                                    Table Producto
+                                    Column Name	Data type
+                                    --------- -------------------------------
+                                    Id				int
+                                    Nombre		nvarchar
+                                    Precio			decimal
+                                    Tienda			nvarchar   
+                                </textarea>
+                            </div>
+                          
+                           
+                        </form>
+                    </div>
+                    <!-- /.col-lg-6 (nested) -->
+                </div>
+                <!-- /.row (nested) -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->

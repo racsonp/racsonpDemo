@@ -2,6 +2,9 @@
 
 namespace racsonpDemo.ViewModels
 {
+
+    //  http://www.asp.net/mvc/overview/getting-started/getting-started-with-ef-using-mvc/sorting-filtering-and-paging-with-the-entity-framework-in-an-asp-net-mvc-application
+    //para agregra busqueda por string
     public class QueryOptions
     {
 

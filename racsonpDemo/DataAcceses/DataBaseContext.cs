@@ -14,15 +14,16 @@ namespace racsonpDemo.DataAcceses
         }
 
         public DbSet<Agent> Agents { get; set; }
+        public DbSet<Producto> Productos{ get; set; }
 
-       // public DbSet<Author> Authors { get; set; }
+       // SE COMENTA CUABDO APP HARRBORD
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+        //protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
 
-            base.OnModelCreating(modelBuilder);
-        } 
+        //    base.OnModelCreating(modelBuilder);
+        //} 
     }
 }
 

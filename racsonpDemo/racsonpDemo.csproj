@@ -143,17 +143,22 @@
     <Compile Include="Controllers\Api\AgentsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NavbarController.cs" />
+    <Compile Include="Controllers\ProductosController.cs" />
+    <Compile Include="Controllers\QueryController.cs" />
     <Compile Include="DataAcceses\DataBaseContext.cs" />
     <Compile Include="DataAcceses\DataBaseInitializer.cs" />
     <Compile Include="DataServices\AgentService.cs" />
     <Compile Include="Domain\Data.cs" />
+    <Compile Include="Extensions\HtmlHelperExtension.cs" />
     <Compile Include="Filters\ OnApiExceptionAttribute.cs" />
     <Compile Include="Filters\GenerateResultListFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Entities\Agent.cs" />
+    <Compile Include="Models\Entities\Producto.cs" />
     <Compile Include="Models\Navbar.cs" />
+    <Compile Include="Models\SqlBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\AgentViewModel.cs" />
     <Compile Include="ViewModels\QueryOptions.cs" />
@@ -947,6 +952,15 @@
     <Content Include="Views\Home\Grid.cshtml" />
     <Content Include="Views\Home\Blank.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
+    <Content Include="Views\Productos\Create.cshtml" />
+    <Content Include="Views\Productos\Delete.cshtml" />
+    <Content Include="Views\Productos\Details.cshtml" />
+    <Content Include="Views\Productos\Edit.cshtml" />
+    <Content Include="Views\Productos\Index.cshtml" />
+    <Content Include="Views\Query\Index.cshtml" />
+    <Content Include="Views\Query\Consulta.cshtml" />
+    <Content Include="Views\Query\View.cshtml" />
+    <Content Include="Views\Query\Config.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

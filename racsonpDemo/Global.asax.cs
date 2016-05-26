@@ -23,6 +23,8 @@ namespace racsonpDemo
 
           //  GlobalConfiguration.Configure(WebApiConfig.Register);
 
+
+            //ESTO SE COMENTA CUADO SE VA APP HARBOR
             //var dataBaseContext = new DataBaseContext();
             //Database.SetInitializer(new DataBaseInitializer());
             //dataBaseContext.Database.Initialize(true);
