@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -43,46 +44,49 @@ namespace racsonpDemo.Controllers
             // return View();
         }
 
-
-        public DataTable GetData()
+        public ActionResult Consulta()
         {
-//        
-//            Server=4baa651c-5c14-4e85-b2d9-a612008b807f.sqlserver.sequelizer.com
-//;Database=db4baa651c5c144e85b2d9a612008b807f
-//;User ID=aoegfdnjackygygk
-//;Password=Y7XDMW7dHrqxkXab2nvAi3W7xcWKvFqkFjhzxV8nKhN3YikjexebKVq5jZgJ8vPc;
-          
-            //string connString = "Data Source=NITRO;Initial Catalog=db4baa651c5c144e85b2d9a612008b807f;User ID=sa;Password=Microsoft201";
-            string connString = "Data Source=4baa651c-5c14-4e85-b2d9-a612008b807f.sqlserver.sequelizer.com;Initial Catalog=db4baa651c5c144e85b2d9a612008b807f;User ID=aoegfdnjackygygk;Password=Y7XDMW7dHrqxkXab2nvAi3W7xcWKvFqkFjhzxV8nKhN3YikjexebKVq5jZgJ8vPc";
-            var query = "SELECT * FROM [dbo].[Producto]";
-            DataTable results = new DataTable();
+            return RedirectToAction("Index");
+            //ViewBag.Active = new List<SelectListItem> {                  
+            //       new SelectListItem { Text = "EXCEL", Value = "1"},                   
+            //       new SelectListItem { Text = "CSV", Value = "2"}
+            //   };
 
-            using (SqlConnection conn = new SqlConnection(connString))
-            using (SqlCommand command = new SqlCommand(query, conn))
-            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
-                dataAdapter.Fill(results);
-            return results;
+            //var sqlBox = new SqlBox { Format = 1 };
+            //return View(sqlBox);
         }
 
-        //public async Task<ActionResult> ExportExcel(string sqlQuery)
-        //{
-        //    return RedirectToAction("Index");
-        //    // Do stuff with the id
-        //}
-       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Consulta([Bind(Include = "Query, Format")] SqlBox sqlBox)
+        {
+
+            ViewBag.Active = new List<SelectListItem> {                  
+                 new SelectListItem { Text = "EXCEL", Value = "1"},                   
+                 new SelectListItem { Text = "CSV", Value = "2"}
+             };
+
+
+            if (String.IsNullOrEmpty(sqlBox.Query))
+            {
+                return RedirectToAction("Index");
+            }
+
+            var sql = new SqlBoxExecuter().GetData(sqlBox.Query);
+            return View(sql);
+
+
+        }
+
   
-            
-        
-        
         public ActionResult ExportExcel(string sqlQuery)
         {
 
             //http://techbrij.com/export-excel-xls-xlsx-asp-net-npoi-epplus
 
-            DataTable dt = GetData();
+            DataTable dt = new SqlBoxExecuter().GetData(sqlQuery).DataTable;
 
-
-
+    
 
             //Create a dummy GridView
 
@@ -93,7 +97,6 @@ namespace racsonpDemo.Controllers
             };
 
             gridView1.DataBind();
-
 
 
             Response.Clear();            
@@ -127,7 +130,9 @@ namespace racsonpDemo.Controllers
 
         public ActionResult ExportCSV()
         {
-            DataTable dt =  GetData();
+
+            var sqlQuery = "Select";
+            DataTable dt = new SqlBoxExecuter().GetData(sqlQuery).DataTable;
 
             Response.Clear();
             Response.Buffer = true;
@@ -165,41 +170,6 @@ namespace racsonpDemo.Controllers
         }
 
 
-       public ActionResult Consulta()
-      //  public ActionResult Consulta()
-        {
-            ViewBag.Active = new List<SelectListItem> {                  
-                 new SelectListItem { Text = "EXCEL", Value = "1"},                   
-                 new SelectListItem { Text = "CSV", Value = "2"}
-             };
-
-           var sqlBox = new SqlBox();
-           sqlBox.Format = 1;
-            return View(sqlBox);
-        }
-
-       [HttpPost]
-       [ValidateAntiForgeryToken]
-       public ActionResult Consulta([Bind(Include = "Query, Format")] SqlBox sqlBox)
-       {
-
-           ViewBag.Active = new List<SelectListItem> {                  
-                 new SelectListItem { Text = "EXCEL", Value = "1"},                   
-                 new SelectListItem { Text = "CSV", Value = "2"}
-             };
-
-
-           if (String.IsNullOrEmpty(sqlBox.Query))
-           {
-               return RedirectToAction("Index");
-           }
-          
-               var sql = new SqlBoxExcuter().GetData(sqlBox.Query);
-               return View(sql); 
-           
-          
-       }
-
          [HttpPost]
        public ActionResult Export([Bind(Include = "Query, Format")] SqlBox sqlBox)
        {
@@ -214,9 +184,9 @@ namespace racsonpDemo.Controllers
                return RedirectToAction("Index");
            }
 
-           //var sql = new SqlBoxExcuter().GetData(sqlBox.Query);
+           //var sql = new SqlBoxExecuter().GetData(sqlBox.Query);
            //return RedirectToAction("Index");
-           DataTable dt = new SqlBoxExcuter().GetData(sqlBox.Query).DataTable;
+           DataTable dt = new SqlBoxExecuter().GetData(sqlBox.Query).DataTable;
 
              if (sqlBox.Format == 2)
              {
