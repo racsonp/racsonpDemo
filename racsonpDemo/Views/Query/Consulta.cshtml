@@ -1,12 +1,19 @@
 ﻿@*@model dynami*@
 @model racsonpDemo.Models.SqlBox
 @using System.Activities.Statements
+@using racsonpDemo.Extensions
 @using System.Data;
 
 @{
     ViewBag.Title = "SQL QUERY BOX";
 
 }
+
+
+
+
+
+
 
 <div class="row">
     <div class="col-lg-12">
@@ -28,58 +35,69 @@
                     {*@
 
 
-                <form role="form" method="post" action="/Query/Export">
+                @*<form role="form" method="post" action="/Query/Export">*@
+                <form role="form" method="post" action="/Query/Consulta">
+                    @*<form role="form" method="post" >*@
                     @Html.AntiForgeryToken()
                     <div class="form-group">
                         <label>SQL:</label>
-                        @*<textarea class="form-control" rows="5" disabled>@Model.Query</textarea>*@
+                        @*<textarea id="contenedorInfo" class="form-control" rows="5" disabled></textarea>*@
 
-                        @Html.EditorFor(model => model.Query, new { htmlAttributes = new { @class = "form-control" } })
+                        @*@Html.EditorFor(model => model.Query, new { htmlAttributes = new { @class = "form-control" } })*@
+
+                        @Html.EditorFor(model => model.Query, new
+                                                                {
+                                                                    htmlAttributes = new { @class = "form-control", data_bind = "value: sqlBox.query" }
+                                                                })
                         <br />
                     </div>
-                      
 
-                        <div class="panel-body">
-                            <div class="form-group">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <input type="submit" name="tipo" value="Run Query" class="btn btn-default" />
+                           
+                            <br />
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
 
-                              
-                                    @Html.ActionLink("New Query", "Index", new { }, new { @class = "btn btn-default" })
-                              
-                            </div>
-                                <div class="row">
-                                    <div class="col-lg-6">
-
-                                        <div class="form-group">
-                                            <label>Format</label>
-                                            @Html.DropDownListFor(model => model.Format,
+                                <div class="form-group">
+                                    <label>Format</label>
+                                    @Html.DropDownListFor(model => model.Format,
                                             new SelectList(ViewBag.Active, "Value", "Text"),
                                             "Select status",
                                             new { @class = "form-control" })
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="submit" value="Export" class="btn btn-default" />
-                                        </div>
+                                </div>
+                                <div class="form-group">
 
-                                    </div>
-                                    <div class="col-lg-6">
-                                       
-                                    </div>
+
+                                    <input type="submit" name="tipo" value="Export" class="btn btn-default" />
+                                    @Html.ActionLink("New Query", "Index", new { }, new { @class = "btn btn-default" })
+                                  
                                 </div>
 
                             </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                   
+                                    
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*}*@
 
-                   
                 </form>
-           
+
             </div>
         </div>
     </div>
-
 </div>
 
 
 <div class="row">
-
+    @*<input id="btnexp" type="submit" value="Export" class="btn btn-default" />*@
     <div class="col-lg-12">
 
 
@@ -88,16 +106,32 @@
                 Result
 
             </div>
-            @*<div class="panel-heading">           
-                @Html.ActionLink("Excel", "ExportExcel", new {}, new {@class = "btn btn-default"})
-                @Html.ActionLink("CSV", "ExportCSV", new {}, new {@class = "btn btn-default"})
+            @*<div class="panel-heading">
+                    @Html.ActionLink("Excel", "ExportExcel", new {}, new {@class = "btn btn-default"})
+                    @Html.ActionLink("CSV", "ExportCsv", new {}, new {@class = "btn btn-default"})
 
-                @Html.ActionLink("Excel", "ExportExcel", new {id = Model.Query})
-            </div>*@
+                    @Html.ActionLink("Excel", "ExportExcel", new {id = Model.Query})
+                </div>*@
             <!-- /.panel-heading -->
-            <div class="panel-body">
+            @*<div style="display: none" data-bind="visible:   authors.length == 0"*@
+            <div    style="display: none" data-bind="visible:   @Model.DataTable.Rows.Count  == 0" class="alert alert-warning alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+
+                @Model.Message
+                <br />
+                @Model.DataTable.Rows.Count  Rows resutls
+                <br />
+                @Html.ActionLink("New Query", "Index", new { }, new { @class = "btn btn-default" })
+            </div>
+          
+            @*<div class="panel-body" style="display: none" data-bind="visible: @{Model.DataTable.Rows.Count > 0; }">*@
+            <div class="panel-body" >
+
                 <div class="table-responsive">
-                  
+
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -120,17 +154,54 @@
                         </tbody>
                     </table>
                 </div>
+
+
                 <!-- /.table-responsive -->
             </div>
+
             <!-- /.panel-body -->
         </div>
         <!-- /.panel -->
     </div>
     <!-- /.col-lg-6 -->
-        
+
 </div>
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryval",
+                "/Scripts/ViewModels/SqlBoxViewModel.js", "/Scripts/knockout-3.2.0.js")
 
 
 
+    <script>
+        var viewModel = new SqlBoxViewModel(@Html.HtmlConvertToJson(Model));
+        ko.applyBindings(viewModel);
+
+        // data: { 'format': viewModel.format,  'querry': viewModel.query },
+
+        //success: function (data) {
+        //    $('#contenedorInfo').html(data);
+        //},
+  
+            $("#btnexp").click(function () {
+                $.ajax({
+                    url: "/Query/Export",
+                    datatype: "text",
+                    data: { 'format': viewModel.sqlBox.format,  'querry': viewModel.sqlBox.query },
+                    type: "POST",
+                    complete: function () {
+
+                        $('.loading').hide();
+                        var ifr = $('<iframe />').attr('src', link.attr('href')).hide().appendTo(link)
+                        setTimeout(function () { ifr.remove(); }, 5000);
+                    }
+                        ,
+                    error: function () {
+                        $("#contenedorInfo").html("ERROR");
+                    }
+                });
+            });
 
 
+    </script>
+}

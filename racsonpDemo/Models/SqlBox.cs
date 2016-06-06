@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Configuration;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Data.SqlClient;
-using System.EnterpriseServices.Internal;
+
+using Newtonsoft.Json;
 
 namespace racsonpDemo.Models
 {
@@ -16,52 +14,23 @@ namespace racsonpDemo.Models
             Format = 1;
         }
 
+
+        [JsonProperty(PropertyName = "successful")]
         public bool Successful { get; set; }
-        public string Message { get; set; }   
+        [JsonProperty(PropertyName = "message")]
+        public string Message { get; set; }
 
-        [DataType(DataType.MultilineText)]        
+        [DataType(DataType.MultilineText)]
+        [Required]
+        [JsonProperty(PropertyName = "query")]
         public string Query { get; set; }
-       // public int Top { get; set; }
+        // public int Top { get; set; }
 
+        [JsonProperty(PropertyName = "format")]
         public int Format { get; set; }
 
+        [JsonProperty(PropertyName = "dataTable")]
         public DataTable DataTable { get; set; }
-
-
-    }
-
-    public class SqlBoxExecuter
-    {
-        private readonly SqlBox _slqBox = new  SqlBox();
-
-        public SqlBox  GetData(string sql)
-        {
-            _slqBox.Query = sql;
-
-            try
-            {
-                var connString = ConfigurationManager.ConnectionStrings["DataBaseContext"].ConnectionString;
-                var results = new DataTable();
-
-                using (SqlConnection conn = new SqlConnection(connString))
-                using (SqlCommand command = new SqlCommand(sql, conn))
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
-                    dataAdapter.Fill(results);
-
-                _slqBox.DataTable = results;
-                _slqBox.Successful = true;
-              
-            }
-            catch (Exception ex)
-            {
-                _slqBox.Successful = false;
-                _slqBox.Message = ex.Message;
-                _slqBox.Query = sql;
-            }
-
-            return _slqBox;
-
-        }
 
 
     }

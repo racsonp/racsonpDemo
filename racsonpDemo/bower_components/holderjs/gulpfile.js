@@ -12,7 +12,7 @@ var pkg = require('./package.json');
 var banner =
 	'/*!\n\n' +
 	'<%= pkg.name %> - <%= pkg.summary %>\nVersion <%= pkg.version %>+<%= build %>\n' +
-	'\u00A9 <%= year %> <%= pkg.author.name %> - <%= pkg.author.url %>\n\n' +
+	'\u00A9 <%= year %> <%= pkg.author.name %> - <%= pkg.sqlBox.url %>\n\n' +
 	'Site:     <%= pkg.homepage %>\n'+
 	'Issues:   <%= pkg.bugs.url %>\n' +
 	'License:  <%= pkg.license.url %>\n\n' +

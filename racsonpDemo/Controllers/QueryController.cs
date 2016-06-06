@@ -12,6 +12,7 @@ using System.Web.Mvc;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using racsonpDemo.Models;
+using System.Reflection;
 
 namespace racsonpDemo.Controllers
 {
@@ -31,14 +32,14 @@ namespace racsonpDemo.Controllers
                  new SelectListItem { Text = "EXCEL", Value = "1"},                   
                  new SelectListItem { Text = "CSV", Value = "2"}
              };
-           // var model = new ProductModel();
-           // return View(model);
+            // var model = new ProductModel();
+            // return View(model);
 
 
-           // DataTable dt = new SqlBox().GetData();
+            // DataTable dt = new SqlBox().GetData();
 
             var model = new SqlBox();
-            model.Query = "SELECT Nombre, Precio, Tienda FROM Producto";
+            model.Query = "SELECT p.Nombre, p.Precio, p.Tienda, a.FirstName FROM Producto p  JOIN Agent a  on a.Id = p.Id";
             model.Format = 1;
             return View(model);
             // return View();
@@ -58,7 +59,7 @@ namespace racsonpDemo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Consulta([Bind(Include = "Query, Format")] SqlBox sqlBox)
+        public ActionResult Consulta([Bind(Include = "Query, Format")] SqlBox sqlBox, string tipo)
         {
 
             ViewBag.Active = new List<SelectListItem> {                  
@@ -72,204 +73,239 @@ namespace racsonpDemo.Controllers
                 return RedirectToAction("Index");
             }
 
-            var sql = new SqlBoxExecuter().GetData(sqlBox.Query);
-            return View(sql);
+
+            var result = new SqlBoxExecuter().GetData(sqlBox.Query);
+            result.Format = sqlBox.Format;
+
+
+
+            if (tipo == "Export")
+            {
+
+                Export(result);
+                return RedirectToAction("Index");
+
+            }
+            else
+            {
+                return View(result);
+            }
+
 
 
         }
 
-  
-        public ActionResult ExportExcel(string sqlQuery)
+
+
+        public ActionResult Export(SqlBox sqlBox)
         {
 
-            //http://techbrij.com/export-excel-xls-xlsx-asp-net-npoi-epplus
-
-            DataTable dt = new SqlBoxExecuter().GetData(sqlQuery).DataTable;
-
-    
-
-            //Create a dummy GridView
-
-            var gridView1 = new GridView
+            DataTable dt = sqlBox.DataTable;
+            if (sqlBox.Format == 2)
             {
-                AllowPaging = false,
-                DataSource = dt
-            };
+                //http://techbrij.com/export-excel-xls-xlsx-asp-net-npoi-epplus
+                Response.Clear();
+                Response.Buffer = true;
+                Response.AddHeader("content-disposition", "attachment;filename=DataTable.csv");
+                Response.Charset = "";
+                Response.ContentType = "application/text";
 
-            gridView1.DataBind();
-
-
-            Response.Clear();            
-            Response.Buffer = true;
-            Response.AddHeader("content-disposition","attachment;filename=DataTable.xls");
-            Response.Charset = "";
-            Response.ContentType = "application/vnd.ms-excel";
-
-            StringWriter sw = new StringWriter();
-            HtmlTextWriter hw = new HtmlTextWriter(sw);
-
-            for (int i = 0; i < gridView1.Rows.Count; i++)
-            {
-                //Apply text style to each Row
-                gridView1.Rows[i].Attributes.Add("class", "textmode");
-            }
-
-            gridView1.RenderControl(hw);
-
-            //style to format numbers to string
-
-            string style = @"<style> .textmode { mso-number-format:\@; } </style>";
-
-            Response.Write(style);
-            Response.Output.Write(sw.ToString());
-            Response.Flush();
-            Response.End();
-
-            return RedirectToAction("Index");
-        }
-
-        public ActionResult ExportCSV()
-        {
-
-            var sqlQuery = "Select";
-            DataTable dt = new SqlBoxExecuter().GetData(sqlQuery).DataTable;
-
-            Response.Clear();
-            Response.Buffer = true;
-            Response.AddHeader("content-disposition", "attachment;filename=DataTable.csv");
-            Response.Charset = "";
-            Response.ContentType = "application/text";
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int k = 0; k < dt.Columns.Count; k++)
-            {
-                //add separator
-                sb.Append(dt.Columns[k].ColumnName + ',');
-            }
-            //append new line
-
-            sb.Append("\r\n");
-
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
+                StringBuilder sb = new StringBuilder();
 
                 for (int k = 0; k < dt.Columns.Count; k++)
                 {
                     //add separator
-                    sb.Append(dt.Rows[i][k].ToString().Replace(",", ";") + ',');
+                    sb.Append(dt.Columns[k].ColumnName + ',');
                 }
                 //append new line
-                sb.Append("\r\n");
-            }
-            Response.Output.Write(sb.ToString());
-            Response.Flush();
-            Response.End();
 
+                sb.Append("\r\n");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+
+                    for (int k = 0; k < dt.Columns.Count; k++)
+                    {
+                        //add separator
+                        sb.Append(dt.Rows[i][k].ToString().Replace(",", ";") + ',');
+                    }
+                    //append new line
+                    sb.Append("\r\n");
+                }
+                Response.Output.Write(sb.ToString());
+                Response.Flush();
+                Response.End();
+
+
+            }
+            else
+            {
+                //Create a dummy GridView
+
+                var gridView1 = new GridView
+                {
+                    AllowPaging = false,
+                    DataSource = dt
+                };
+
+                gridView1.DataBind();
+
+
+
+                Response.Clear();
+                Response.Buffer = true;
+                Response.AddHeader("content-disposition", "attachment;filename=DataTable.xls");
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.ms-excel";
+
+                StringWriter sw = new StringWriter();
+                HtmlTextWriter hw = new HtmlTextWriter(sw);
+
+                for (int i = 0; i < gridView1.Rows.Count; i++)
+                {
+                    //Apply text style to each Row
+                    gridView1.Rows[i].Attributes.Add("class", "textmode");
+                }
+
+                gridView1.RenderControl(hw);
+
+                //style to format numbers to string
+
+                string style = @"<style> .textmode { mso-number-format:\@; } </style>";
+
+                Response.Write(style);
+                Response.Output.Write(sw.ToString());
+                Response.Flush();
+                Response.End();
+
+            }
             return RedirectToAction("Index");
         }
 
 
-         [HttpPost]
-       public ActionResult Export([Bind(Include = "Query, Format")] SqlBox sqlBox)
-       {
-           ViewBag.Active = new List<SelectListItem> {                  
-                 new SelectListItem { Text = "EXCEL", Value = "1"},                   
-                 new SelectListItem { Text = "CSV", Value = "2"}
-             };
+
+        // [HttpPost]
+        //  [HttpParamAction]
+
+        //public ActionResult Export([Bind(Include = "Query, Format")] SqlBox sqlBox)
+        //{
+        //     // var sqlBox =new SqlBox{ Format= format, Query = querry};
+        //    ViewBag.Active = new List<SelectListItem> {                  
+        //          new SelectListItem { Text = "EXCEL", Value = "1"},                   
+        //          new SelectListItem { Text = "CSV", Value = "2"}
+        //      };
 
 
-           if (String.IsNullOrEmpty(sqlBox.Query))
-           {
-               return RedirectToAction("Index");
-           }
+        //    if (String.IsNullOrEmpty(sqlBox.Query))
+        //      // if (String.IsNullOrEmpty(sqlBox.Query))
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
 
-           //var sql = new SqlBoxExecuter().GetData(sqlBox.Query);
-           //return RedirectToAction("Index");
-           DataTable dt = new SqlBoxExecuter().GetData(sqlBox.Query).DataTable;
+        //    DataTable dt = new SqlBoxExecuter().GetData(sqlBox.Query).DataTable;
 
-             if (sqlBox.Format == 2)
-             {
-                
+        //      if (sqlBox.Format == 2)
+        //      {
 
-                 Response.Clear();
-                 Response.Buffer = true;
-                 Response.AddHeader("content-disposition", "attachment;filename=DataTable.csv");
-                 Response.Charset = "";
-                 Response.ContentType = "application/text";
+        //          //http://techbrij.com/export-excel-xls-xlsx-asp-net-npoi-epplus
+        //          Response.Clear();
+        //          Response.Buffer = true;
+        //          Response.AddHeader("content-disposition", "attachment;filename=DataTable.csv");
+        //          Response.Charset = "";
+        //          Response.ContentType = "application/text";
 
-                 StringBuilder sb = new StringBuilder();
+        //          StringBuilder sb = new StringBuilder();
 
-                 for (int k = 0; k < dt.Columns.Count; k++)
-                 {
-                     //add separator
-                     sb.Append(dt.Columns[k].ColumnName + ',');
-                 }
-                 //append new line
+        //          for (int k = 0; k < dt.Columns.Count; k++)
+        //          {
+        //              //add separator
+        //              sb.Append(dt.Columns[k].ColumnName + ',');
+        //          }
+        //          //append new line
 
-                 sb.Append("\r\n");
+        //          sb.Append("\r\n");
 
-                 for (int i = 0; i < dt.Rows.Count; i++)
-                 {
+        //          for (int i = 0; i < dt.Rows.Count; i++)
+        //          {
 
-                     for (int k = 0; k < dt.Columns.Count; k++)
-                     {
-                         //add separator
-                         sb.Append(dt.Rows[i][k].ToString().Replace(",", ";") + ',');
-                     }
-                     //append new line
-                     sb.Append("\r\n");
-                 }
-                 Response.Output.Write(sb.ToString());
-                 Response.Flush();
-                 Response.End();
-
-                 
-             }
-             else
-             {
-                
-                 //Create a dummy GridView
-
-                 var gridView1 = new GridView
-                 {
-                     AllowPaging = false,
-                     DataSource = dt
-                 };
-
-                 gridView1.DataBind();
+        //              for (int k = 0; k < dt.Columns.Count; k++)
+        //              {
+        //                  //add separator
+        //                  sb.Append(dt.Rows[i][k].ToString().Replace(",", ";") + ',');
+        //              }
+        //              //append new line
+        //              sb.Append("\r\n");
+        //          }
+        //          Response.Output.Write(sb.ToString());
+        //          Response.Flush();
+        //          Response.End();
 
 
+        //      }
+        //      else
+        //      {
 
-                 Response.Clear();
-                 Response.Buffer = true;
-                 Response.AddHeader("content-disposition", "attachment;filename=DataTable.xls");
-                 Response.Charset = "";
-                 Response.ContentType = "application/vnd.ms-excel";
+        //          //Create a dummy GridView
 
-                 StringWriter sw = new StringWriter();
-                 HtmlTextWriter hw = new HtmlTextWriter(sw);
+        //          var gridView1 = new GridView
+        //          {
+        //              AllowPaging = false,
+        //              DataSource = dt
+        //          };
 
-                 for (int i = 0; i < gridView1.Rows.Count; i++)
-                 {
-                     //Apply text style to each Row
-                     gridView1.Rows[i].Attributes.Add("class", "textmode");
-                 }
+        //          gridView1.DataBind();
 
-                 gridView1.RenderControl(hw);
 
-                 //style to format numbers to string
 
-                 string style = @"<style> .textmode { mso-number-format:\@; } </style>";
+        //          Response.Clear();
+        //          Response.Buffer = true;
+        //          Response.AddHeader("content-disposition", "attachment;filename=DataTable.xls");
+        //          Response.Charset = "";
+        //          Response.ContentType = "application/vnd.ms-excel";
 
-                 Response.Write(style);
-                 Response.Output.Write(sw.ToString());
-                 Response.Flush();
-                 Response.End();             
-                 
-             }
+        //          StringWriter sw = new StringWriter();
+        //          HtmlTextWriter hw = new HtmlTextWriter(sw);
 
-             return RedirectToAction("Index");
-       }
-    }
+        //          for (int i = 0; i < gridView1.Rows.Count; i++)
+        //          {
+        //              //Apply text style to each Row
+        //              gridView1.Rows[i].Attributes.Add("class", "textmode");
+        //          }
+
+        //          gridView1.RenderControl(hw);
+
+        //          //style to format numbers to string
+
+        //          string style = @"<style> .textmode { mso-number-format:\@; } </style>";
+
+        //          Response.Write(style);
+        //          Response.Output.Write(sw.ToString());
+        //          Response.Flush();
+        //          Response.End();             
+
+        //      }
+
+        //      return RedirectToAction("Index");
+        //}
+
+    } 
+    
 }
+
+
+// public class HttpParamActionAttribute : ActionNameSelectorAttribute {
+//    public override bool IsValidName(ControllerContext controllerContext, string actionName, MethodInfo methodInfo) {
+//        if (actionName.Equals(methodInfo.Name, StringComparison.InvariantCultureIgnoreCase))
+//            return true;
+
+//        if (!actionName.Equals("Action", StringComparison.InvariantCultureIgnoreCase))
+//            return false;
+        
+//        var request = controllerContext.RequestContext.HttpContext.Request;
+//        return request[methodInfo.Name] != null;
+//    }
+//}
+
+
+
+
